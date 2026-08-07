@@ -1,7 +1,7 @@
 export default {
     githubPages: {
         url: "https://labnann.github.io",
-        baseUrl: "/persona",
+        baseUrl: "/Persona",
     },
 
     title: "Persona",
