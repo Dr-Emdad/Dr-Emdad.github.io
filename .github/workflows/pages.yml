@@ -44,11 +44,10 @@ jobs:
           node -e "console.log('Node heap limit:', require('v8').getHeapStatistics().heap_size_limit / 1024 / 1024, 'MiB')"
 
       - name: Build website
+        run: npm run build
         env:
-          DOCUSAURUS_PERF_LOGGER: "true"
-        run: |
-            npm run build
-            echo $? done building, trying to upload
+          NODE_OPTIONS: --max-old-space-size=4096
+          DOCUSAURUS_SSG_WORKER_THREAD_COUNT: 1
   
 
       - name: Upload Pages artifact
