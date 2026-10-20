@@ -20,6 +20,23 @@ const config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
+  //disable optimization
+
+  plugins: [
+    function disableExpensiveBundlerOptimizationPlugin() {
+      return {
+        name: 'disable-expensive-bundler-optimization',
+        configureWebpack() {
+          return {
+            optimization: {
+              concatenateModules: false,
+            },
+          };
+        },
+      };
+    },
+  ],
+
   // Set the production url of your site here
   url: persona.githubPages.url,
   // Set the /<baseUrl>/ pathname under which your site is served
