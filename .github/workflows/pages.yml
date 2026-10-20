@@ -31,13 +31,25 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+  
+      - name: Check runner resources
+        run: |
+          echo "=== Memory ==="
+          free -h
+          echo "=== Disk ==="
+          df -h .
+          echo "=== Node ==="
+          node --version
+          node -e "console.log('Node heap limit:', require('v8').getHeapStatistics().heap_size_limit / 1024 / 1024, 'MiB')"
 
       - name: Build website
+        env:
+          DOCUSAURUS_PERF_LOGGER: "true"
         run: |
             npm run build
             echo $? done building, trying to upload
-
+  
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
