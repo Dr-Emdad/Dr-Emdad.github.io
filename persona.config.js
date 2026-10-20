@@ -1,7 +1,7 @@
 export default {
     githubPages: {
-        url: "https://ice-cream905.github.io",
-        baseUrl: "/Persona",
+        url: "https://dr-emdad.github.io/",
+        baseUrl: "/",
     },
 
     title: "Persona",
