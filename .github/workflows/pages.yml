@@ -34,7 +34,9 @@ jobs:
         run: npm ci
 
       - name: Build website
-        run: npm run build
+        run: |
+            npm run build \
+            echo $? done building, trying to upload
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
