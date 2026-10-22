@@ -45,12 +45,12 @@ jobs:
           echo "=== Existing swap ==="
           swapon --show
 
-      - name: Configure 6 GiB swap
+      - name: Configure swap
         run: |
           set -e
 
           SWAPFILE=/swapfile
-          TARGET_BYTES=$((6 * 1024 * 1024 * 1024))
+          TARGET_BYTES=$((8 * 1024 * 1024 * 1024))
 
           if [ -e "$SWAPFILE" ]; then
             if swapon --noheadings --raw --show=NAME | grep -Fxq "$SWAPFILE"; then
@@ -83,7 +83,7 @@ jobs:
       - name: Build website
         id: build
         continue-on-error: true
-        run: npm run build
+        run: npm run build --dev
 
       - name: Remove swap
         if: always()
