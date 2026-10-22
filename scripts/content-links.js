@@ -9,7 +9,7 @@ const REPO = "Dr-Emdad/Dr-Emdad.github.io";
 const BRANCH = "pages";
 const FILE_TYPES = new Set([".pdf", ".doc", ".docx", ".ppt", ".pptx"]);
 
-const rawGithubBase = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/`;
+const rawGithubBase = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${ROOT}/`;
 
 function encodeJsdelivrPath(fileRel) {
   return fileRel
