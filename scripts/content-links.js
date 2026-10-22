@@ -9,7 +9,7 @@ const REPO = "Dr-Emdad/Dr-Emdad.github.io";
 const BRANCH = "pages";
 const FILE_TYPES = new Set([".pdf", ".doc", ".docx", ".ppt", ".pptx"]);
 
-const jsdelivrBase = `https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}/`;
+const rawGithubBase = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/`;
 
 function encodeJsdelivrPath(fileRel) {
   return fileRel
@@ -84,7 +84,7 @@ title: ${title}
     for (const doc of docs) {
       const filePath = path.join(dir, doc.name);
       const fileRel = path.relative(ROOT, filePath).split(path.sep).join("/");
-      const rawUrl = `${jsdelivrBase}${encodeJsdelivrPath(fileRel)}`;
+      const rawUrl = `${rawGithubBase}${encodeJsdelivrPath(fileRel)}`;
       const officeUrl =
         "https://view.officeapps.live.com/op/view.aspx?src=" +
         encodeURIComponent(rawUrl);
