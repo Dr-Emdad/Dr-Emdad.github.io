@@ -3,23 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "prepare": "npm run copy && npm run generate && npm run stage",
-    "copy": "node scripts/copy.js",
-    "generate": "node scripts/generate.js",
-    "stage": "node scripts/stage.js",
-
-    "start": "npm run prepare && docusaurus start",
-    "build": "npm run prepare && docusaurus build",
+    "content:discover": "node scripts/content-links.js",
+    "prepare": "npm run content:discover",
+    "start": "npm run content:discover && docusaurus start",
+    "build": "npm run content:discover && docusaurus build",
     "serve": "docusaurus serve",
-
     "docusaurus": "docusaurus",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids"
-    },
-    "dependencies": {
+  },
+  "dependencies": {
     "@docusaurus/core": "3.10.2",
     "@docusaurus/faster": "3.10.2",
     "@docusaurus/preset-classic": "3.10.2",
