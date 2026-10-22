@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -31,24 +31,69 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
-  
+        run: npm ci
+
       - name: Check runner resources
         run: |
           echo "=== Memory ==="
           free -h
-          echo "=== Disk ==="
-          df -h .
-          echo "=== Node ==="
-          node --version
-          node -e "console.log('Node heap limit:', require('v8').getHeapStatistics().heap_size_limit / 1024 / 1024, 'MiB')"
+
+          echo "=== Disk space ==="
+          df -h /
+
+          echo "=== Existing swap ==="
+          swapon --show
+
+          echo "=== Swap file check ==="
+          if [ -e /swapfile ]; then
+            echo "ERROR: /swapfile already exists"
+            exit 1
+          fi
+
+          AVAILABLE_KB=$(df -Pk / | awk 'NR==2 {print $4}')
+          REQUIRED_KB=$((6 * 1024 * 1024))
+
+          if [ "$AVAILABLE_KB" -lt "$REQUIRED_KB" ]; then
+            echo "ERROR: Insufficient disk space for 6 GiB swap"
+            exit 1
+          fi
+
+      - name: Configure 6 GiB swap
+        run: |
+          sudo fallocate -l 6G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+          echo "=== Memory and swap after setup ==="
+          free -h
+          swapon --show
+
+          if ! swapon --noheadings --raw --show=NAME | grep -Fxq /swapfile; then
+            echo "ERROR: Swap file is not active"
+            exit 1
+          fi
 
       - name: Build website
+        id: build
+        continue-on-error: true
         run: npm run build
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
-          DOCUSAURUS_SSG_WORKER_THREAD_COUNT: 1
-  
+
+      - name: Remove swap
+        if: always()
+        run: |
+          if swapon --noheadings --raw --show=NAME | grep -Fxq /swapfile; then
+            sudo swapoff /swapfile
+          fi
+          sudo rm -f /swapfile
+
+          echo "=== Memory and swap after cleanup ==="
+          free -h
+          swapon --show
+
+      - name: Fail if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
