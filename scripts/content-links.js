@@ -11,6 +11,13 @@ const FILE_TYPES = new Set([".pdf", ".doc", ".docx", ".ppt", ".pptx"]);
 
 const jsdelivrBase = `https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}/`;
 
+function encodeJsdelivrPath(fileRel) {
+  return fileRel
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
 async function walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = [];
@@ -77,7 +84,7 @@ title: ${title}
     for (const doc of docs) {
       const filePath = path.join(dir, doc.name);
       const fileRel = path.relative(ROOT, filePath).split(path.sep).join("/");
-      const rawUrl = `${jsdelivrBase}${fileRel}`;
+      const rawUrl = `${jsdelivrBase}${encodeJsdelivrPath(fileRel)}`;
       const officeUrl =
         "https://view.officeapps.live.com/op/view.aspx?src=" +
         encodeURIComponent(rawUrl);
