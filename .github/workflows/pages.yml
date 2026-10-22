@@ -1,3 +1,4 @@
+
 name: Deploy to GitHub Pages
 
 on:
@@ -44,32 +45,37 @@ jobs:
           echo "=== Existing swap ==="
           swapon --show
 
-          echo "=== Swap file check ==="
-          if [ -e /swapfile ]; then
-            echo "ERROR: /swapfile already exists"
-            exit 1
+      - name: Configure 6 GiB swap
+        run: |
+          set -e
+
+          SWAPFILE=/swapfile
+          TARGET_BYTES=$((6 * 1024 * 1024 * 1024))
+
+          if [ -e "$SWAPFILE" ]; then
+            if swapon --noheadings --raw --show=NAME | grep -Fxq "$SWAPFILE"; then
+              sudo swapoff "$SWAPFILE"
+            fi
+            sudo rm -f "$SWAPFILE"
           fi
 
-          AVAILABLE_KB=$(df -Pk / | awk 'NR==2 {print $4}')
-          REQUIRED_KB=$((6 * 1024 * 1024))
+          AVAILABLE_BYTES=$(df -PB1 / | awk 'NR==2 {print $4}')
 
-          if [ "$AVAILABLE_KB" -lt "$REQUIRED_KB" ]; then
+          if [ "$AVAILABLE_BYTES" -lt "$TARGET_BYTES" ]; then
             echo "ERROR: Insufficient disk space for 6 GiB swap"
             exit 1
           fi
 
-      - name: Configure 6 GiB swap
-        run: |
-          sudo fallocate -l 6G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo fallocate -l 6G "$SWAPFILE"
+          sudo chmod 600 "$SWAPFILE"
+          sudo mkswap "$SWAPFILE"
+          sudo swapon "$SWAPFILE"
 
-          echo "=== Memory and swap after setup ==="
+          echo "=== Verify swap ==="
           free -h
           swapon --show
 
-          if ! swapon --noheadings --raw --show=NAME | grep -Fxq /swapfile; then
+          if ! swapon --noheadings --raw --show=NAME | grep -Fxq "$SWAPFILE"; then
             echo "ERROR: Swap file is not active"
             exit 1
           fi
@@ -85,6 +91,7 @@ jobs:
           if swapon --noheadings --raw --show=NAME | grep -Fxq /swapfile; then
             sudo swapoff /swapfile
           fi
+
           sudo rm -f /swapfile
 
           echo "=== Memory and swap after cleanup ==="
